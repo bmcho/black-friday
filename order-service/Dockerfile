@@ -6,6 +6,6 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY build/libs/member-service.jar /app/member-service.jar
+COPY build/libs/order-service.jar /app/order-service.jar
 
-CMD ["java", "-jar", "member-service.jar"]
+CMD ["java", "-jar", "order-service.jar"]

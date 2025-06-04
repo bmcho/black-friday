@@ -1,0 +1,15 @@
+jar {
+	manifest {
+		attributes(
+				'Main-Class': 'com.bmcho.catalogservice.CatalogServiceApplication'
+		)
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-cassandra'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	runtimeOnly 'com.mysql:mysql-connector-j'
+}
