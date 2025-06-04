@@ -1,7 +1,7 @@
 
 .gradle
-cassandra
-mysql
+./cassandra
+./mysql
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
