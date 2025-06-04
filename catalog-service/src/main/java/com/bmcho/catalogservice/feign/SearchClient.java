@@ -2,11 +2,10 @@ package com.bmcho.catalogservice.feign;
 
 import com.bmcho.catalogservice.dto.ProductTagsDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Component
+@Deprecated(since = "Deprecated due to Kafka-based refactoring")
 @FeignClient(name = "searchClient", url = "http://search-service:8080")
 public interface SearchClient {
     @PostMapping(value = "/search/addTagCache")

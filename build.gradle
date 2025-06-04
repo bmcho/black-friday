@@ -49,6 +49,8 @@ subprojects {
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
+
+    bootJar { enabled = true }
 }
 
 tasks.named('test') {
@@ -56,5 +58,8 @@ tasks.named('test') {
 }
 
 tasks.named('bootJar') {
+    enabled = false
+}
+tasks.named('jar') {
     enabled = false
 }
