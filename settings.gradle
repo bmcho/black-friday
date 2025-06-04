@@ -1,0 +1,3 @@
+rootProject.name = "black-friday"
+
+include("catalog-service", "delivery-service", "member-service", "order-service", "payment-service", "search-service")
