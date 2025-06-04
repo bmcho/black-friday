@@ -6,6 +6,6 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY build/libs/member-service.jar /app/member-service.jar
+COPY build/libs/catalog-service.jar /app/catalog-service.jar
 
-CMD ["java", "-jar", "member-service.jar"]
+CMD ["java", "-jar", "catalog-service.jar"]
