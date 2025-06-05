@@ -23,6 +23,7 @@ public class PaymentController {
         );
     }
 
+    @Deprecated(since = "Deprecated due to Kafka-based refactoring")
     @PostMapping("/payment/process-payment")
     public Payment processPayment(@RequestBody ProcessPaymentDto dto) throws Exception {
         return paymentService.processPayment(

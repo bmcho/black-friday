@@ -1,3 +1,7 @@
+plugins {
+    id 'com.google.protobuf' version '0.9.4'
+}
+
 jar {
     manifest {
         attributes(
@@ -7,4 +11,13 @@ jar {
 }
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.google.protobuf:protobuf-java:4.31.1'
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:4.31.1'
+    }
 }
