@@ -25,3 +25,26 @@ protobuf {
 		artifact = 'com.google.protobuf:protoc:4.31.1'
 	}
 }
+
+jacocoTestReport {
+	dependsOn test
+	finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'BUNDLE'
+
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.80
+			}
+
+			includes = [
+			        'com.bmcho.orderservice.service.**'
+			]
+		}
+	}
+}
