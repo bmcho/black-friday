@@ -23,6 +23,7 @@ public class DeliveryController {
         );
     }
 
+    @Deprecated(since = "Deprecated due to Kafka-based refactoring")
     @PostMapping("/delivery/process-delivery")
     public Delivery processDelivery(@RequestBody ProcessDeliveryDto dto) {
         return deliveryService.processDelivery(

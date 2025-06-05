@@ -1,5 +1,7 @@
+
 services:
-# Infra services
+
+ #Infra services
   cassandra-node-0:
     image: cassandra
     environment:
@@ -82,69 +84,140 @@ services:
     depends_on:
       - myredis
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p 1234" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234" ]
       interval: 5s
       timeout: 5s
       retries: 10
 
 #kafaka
-  zookeeper:
+  # Zookeeper 3개 (클러스터)
+  zookeeper1:
     image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper1
+    ports:
+      - "22181:2181"      # 외부 접속용 포트 (필요하면 열기)
+#      - "2888:2888"       # 클러스터 팔로워와 리더 통신
+#      - "3888:3888"       # 리더 선출 통신
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
-    ports:
-      - "22181:2181"
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_ELECTION_PORT_BIND_RETRY: 10
+      ZOOKEEPER_SERVERS: zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888
     healthcheck:
-      test: nc -z localhost 2181 || exit 1
-      interval: 30s
-      timeout: 20s
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 10s
 
+  zookeeper2:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper2
+    ports:
+      - "22182:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_ELECTION_PORT_BIND_RETRY: 10
+      ZOOKEEPER_SERVERS: zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  zookeeper3:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper3
+    ports:
+      - "22183:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_ELECTION_PORT_BIND_RETRY: 10
+      ZOOKEEPER_SERVERS: zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka 3개 (브로커)
   kafka1:
     image: confluentinc/cp-kafka:latest
+    container_name: kafka1
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
     ports:
-      - "19092:19092"
+      - "9091:9092"    # 외부 접속용 포트 매핑 (호스트:컨테이너)
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9092,EXTERNAL://localhost:19092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9092,EXTERNAL://localhost:9091
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9091
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_RETENTION_HOURS: 168
+
 
   kafka2:
     image: confluentinc/cp-kafka:latest
+    container_name: kafka2
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
     ports:
-      - "19093:19093"
+      - "9093:9092"
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,EXTERNAL://localhost:19093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,EXTERNAL://localhost:9093
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_RETENTION_HOURS: 168
 
   kafka3:
     image: confluentinc/cp-kafka:latest
+    container_name: kafka3
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
     ports:
-      - "19094:19094"
+      - "9094:9092"
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka3:9092,EXTERNAL://localhost:19094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka3:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9094
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_RETENTION_HOURS: 168
 
- #Domain Services
+
+# #Domain Services
   member-service:
     restart: always
     build:

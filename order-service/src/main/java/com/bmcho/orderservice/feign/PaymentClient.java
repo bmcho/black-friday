@@ -2,7 +2,6 @@ package com.bmcho.orderservice.feign;
 
 import com.bmcho.orderservice.dto.ProcessPaymentDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +14,7 @@ public interface PaymentClient {
     @GetMapping(value = "/payment/users/{userId}/first-method")
     Map<String, Object> getPaymentMethod(@PathVariable Long userId);
 
+    @Deprecated(since = "Deprecated due to Kafka-based refactoring")
     @PostMapping(value = "/payment/process-payment")
     Map<String, Object> processPayment(@RequestBody ProcessPaymentDto dto);
 
